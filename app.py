@@ -8,9 +8,17 @@ st.markdown("<h1 style='text-align: center;'>🌡️ Temperature Prediction App<
 st.markdown("<h3 style='text-align: center;'>👋 Welcome to the Temperature Prediction App for Beijing City!</h3>", unsafe_allow_html=True)
 st.markdown("---")
 
-# --- Home content ---
+# --- Home Content ---
 st.markdown("### 📌 Use the sidebar on the left to navigate through the app pages.")
-st.image("https://i.imgur.com/Nk0YmlL.png", caption="Beijing City Air Quality", use_column_width=True)
+
+# --- Replace with a working image ---
+st.image("https://images.unsplash.com/photo-1603183082014-b3fbd1d3b248?auto=format&fit=crop&w=1200&q=80",
+         caption="Beijing City Skyline - Air Quality Monitoring", use_column_width=True)
+
+# Optional: Footer
+st.markdown("---")
+st.markdown("<small>Developed as part of a pollution & temperature prediction project.</small>", unsafe_allow_html=True)
+
 
 
 
