@@ -113,6 +113,28 @@ elif page == "Explore EDA":
          - Mean = **14.85 µg/m³**, Max = **411 µg/m³**  
          - Can cause **climate change effects**
     """)
+elif page == "Explore EDA":
+   
+    # Pollutants Selection
+    st.markdown("### 🧪 Pollutant Mean Levels")
+    pollutants = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']
+    
+    selected_pollutants = st.multiselect(
+        "Select pollutants to view their average levels:",
+        options=pollutants,
+        default=["PM2.5"],  # Default selection to ensure minimum one is selected
+        help="Hold Ctrl (Windows) or Command (Mac) to select multiple pollutants."
+    )
+
+    if selected_pollutants:
+        poll = data[selected_pollutants].mean()
+        pollutants_df = poll.to_frame().reset_index()
+        pollutants_df.columns = ['Pollutant', 'Level']
+        st.dataframe(pollutants_df)
+    else:
+        st.warning("⚠️ Please select at least one pollutant to display data.")
+
+
 
 
 
