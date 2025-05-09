@@ -150,6 +150,28 @@ ax.axis('equal')  # Makes the pie chart circular
 # Step 5: Display in Streamlit
 st.pyplot(fig)
 
+# Station-wise dominant pollutant table
+st.markdown("### 🏭 Dominant Pollutants by Station")
+
+# Group and compute dominant pollutants
+pollutants = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']
+areawise_pollution_means = data.groupby('station')[pollutants].mean()
+dominant_pollutant_by_area = areawise_pollution_means.idxmax(axis=1)
+dominant_pollutant_df = dominant_pollutant_by_area.reset_index()
+dominant_pollutant_df.columns = ['Station', 'Dominant Pollutant']
+
+# Select station(s)
+stations = dominant_pollutant_df['Station'].unique()
+selected_stations = st.multiselect("Select Station(s) to view dominant pollutant:", stations, default=stations[:1])
+
+# Ensure at least one is selected
+if selected_stations:
+    filtered_df = dominant_pollutant_df[dominant_pollutant_df['Station'].isin(selected_stations)]
+    st.dataframe(filtered_df)
+else:
+    st.warning("Please select at least one station to view the data.")
+
+
 
 
 
