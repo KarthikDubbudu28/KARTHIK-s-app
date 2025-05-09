@@ -60,6 +60,27 @@ if page == "Dataset Overview":
     else:
         st.warning("No solid pollutant columns found.")
 
+    st.markdown("### 🏭 Station-wise Data Overview")
+
+    # Check if 'station' column exists (replace with actual name if different)
+    if 'station' in data.columns:
+        # Show unique station names
+        unique_stations = data['station'].unique()
+        st.write(f"Found {len(unique_stations)} stations.")
+
+        # Let user select a station to view
+        selected_station = st.selectbox("Select a station to view its data:", unique_stations)
+
+        # Filter data for the selected station
+        station_data = data[data['station'] == selected_station]
+
+        # Display filtered table
+        st.dataframe(station_data.head(20))  # showing only first 20 rows for clarity
+        st.write("Total records for this station:", station_data.shape[0])
+    else:
+        st.warning("No 'station' column found in dataset.")
+
+
 
 
 
