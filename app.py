@@ -114,7 +114,14 @@ elif page == "Explore EDA":
          - Can cause **climate change effects**
     """)
 elif page == "Explore EDA":
-   
+    st.subheader("📊 Exploratory Data Analysis")
+
+    # Display Insights
+    st.markdown("### 📌 Insights from Summary Statistics")
+    st.markdown("""
+    (Your previous summary markdown content here...)
+    """)
+
     # Pollutants Selection
     st.markdown("### 🧪 Pollutant Mean Levels")
     pollutants = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']
@@ -133,6 +140,13 @@ elif page == "Explore EDA":
         st.dataframe(pollutants_df)
     else:
         st.warning("⚠️ Please select at least one pollutant to display data.")
+
+    # Continue with other EDA content
+    st.markdown("### 📈 Data Summary")
+    st.write(data.describe())
+
+   
+
 
 
 
