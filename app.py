@@ -80,6 +80,36 @@ if page == "Dataset Overview":
     else:
         st.warning("No 'station' column found in dataset.")
 
+    st.markdown("### 📌 Insights from Summary Statistics")
+
+    st.markdown("""
+    1. **Timeline:**  
+       - The dataset covers the period from **03/01/2013 to 02/28/2017**.  
+       - The average date suggests the midpoint is around **03/01/2015**.
+
+    2. **Solid Pollutants (PM2.5 and PM10):**  
+       - **PM2.5:** Mean = 78.7 µg/m³  
+       - **PM10:** Mean = 102 µg/m³  
+       - Both have maximum values close to **999**, indicating **extremely high pollution levels**.
+
+    3. **Gas Pollutants (SO₂, NO₂, CO, O₃):**
+       - **CO (Carbon Monoxide):**  
+         - Mean = **1202 µg/m³**  
+         - Max = **10,000 µg/m³** → **Severe air pollution**
+
+       - **O₃ (Ozone):**  
+         - Mean = **56.5 µg/m³**, Max = **674 µg/m³**
+
+       - **NO₂ (Nitrogen Dioxide):**  
+         - Mean = **48.9 µg/m³**, Max = **264 µg/m³**  
+         - May contribute to **acid rain**
+
+       - **SO₂ (Sulfur Dioxide):**  
+         - Mean = **14.85 µg/m³**, Max = **411 µg/m³**  
+         - Can cause **climate change effects**
+    """)
+
+
 
 
 
