@@ -34,9 +34,7 @@ elif page == "Model Prediction":
     st.info("This section will include machine learning models (coming soon).")
 
 if page == "Dataset Overview":
-    st.subheader("📄 Dataset Overview")
-    st.dataframe(data)
-    st.write("Shape:", data.shape)
+
 
     st.markdown("### 🧪 Pollutant Breakdown")
 
