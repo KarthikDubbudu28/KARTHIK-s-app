@@ -7,7 +7,7 @@ st.header("📄 Dataset Overview")
 
 @st.cache_data  # Use @st.cache if using an older version of Streamlit
 def load_data():
-    url = 'https://raw.githubusercontent.com/your-username/your-repo-name/main/beijing_cleaned.csv'
+    url = 'https://raw.githubusercontent.com/KarthikDubbudu28/KARTHIK-s-app/refs/heads/main/beijing_cleaned.csv'
     response = requests.get(url)
     if response.status_code == 200:
         return pd.read_csv(StringIO(response.text))
