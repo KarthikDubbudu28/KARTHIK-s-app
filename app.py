@@ -14,3 +14,6 @@ try:
     st.dataframe(data)
 except Exception as e:
     st.error(f"Error loading dataset: {e}")
+with st.sidebar:
+    st.header('Pages')
+    
