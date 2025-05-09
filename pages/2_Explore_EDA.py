@@ -68,3 +68,65 @@ if selected:
     st.dataframe(dominant[dominant['Station'].isin(selected)])
 else:
     st.warning("Please select at least one station.")
+
+if df is not None and 'year' in df.columns:
+    # Ensure 'year' column is int
+    df['year'] = df['year'].astype(int)
+
+    # Define pollutant columns
+    pollutant_cols = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']
+    available_pollutants = [col for col in pollutant_cols if col in df.columns]
+
+    if available_pollutants:
+        # Group by year and calculate means
+        yearly_avg = df.groupby('year')[available_pollutants].mean().reset_index()
+        yearly_avg['Total_Pollution'] = yearly_avg[available_pollutants].sum(axis=1)
+        yearly_avg['Dominant_Pollutant'] = yearly_avg[available_pollutants].idxmax(axis=1)
+
+        # Sort and assign colors
+        yearly_avg = yearly_avg.sort_values(by='Total_Pollution', ascending=True).reset_index(drop=True)
+        color_scale = ['green', 'lightgreen', 'yellow', 'orange', 'darkred', 'red']
+        num_years = len(yearly_avg)
+        yearly_avg['Color'] = pd.cut(
+            yearly_avg['Total_Pollution'],
+            bins=num_years,
+            labels=color_scale[:num_years]
+        ).astype(str)
+
+        # Year selection
+        st.subheader("📅 Select Year(s) to View")
+        selected_years = st.multiselect(
+            "Choose year(s) to visualize (at least one required):",
+            options=yearly_avg['year'].tolist(),
+            default=[yearly_avg['year'].min()]
+        )
+
+        if selected_years:
+            filtered_data = yearly_avg[yearly_avg['year'].isin(selected_years)]
+
+            # Plot chart
+            fig = px.bar(
+                filtered_data,
+                x='year',
+                y='Total_Pollution',
+                color='Color',
+                color_discrete_map={c: c for c in color_scale},
+                title='Year-wise Total Pollution with Dominant Pollutant',
+                labels={'Total_Pollution': 'Total Pollution (µg/m³)', 'year': 'Year'},
+                hover_data=['Dominant_Pollutant']
+            )
+            fig.update_traces(
+                text=filtered_data['Dominant_Pollutant'],
+                textposition='outside',
+                marker_line_color='black',
+                marker_line_width=1
+            )
+            fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
+
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.warning("Please select at least one year to display the graph.")
+    else:
+        st.error("No pollutant columns available in the dataset.")
+else:
+    st.error("Dataset missing or does not contain a 'year' column.")
