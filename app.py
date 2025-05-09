@@ -1,35 +1,40 @@
 import streamlit as st
 import pandas as pd
 
-st.title('Welcome to the Temperature Prediction App🌡️')
-# Load the data
-@st.cache_data
-def load_data():
-    df = pd.read_csv("beijing_cleaned.csv")  # File must be in the same directory
-    return df
 
-try:
-    data = load_data()
-    st.write("### Here's the cleaned Beijing dataset:")
-    st.dataframe(data)
-except Exception as e:
-    st.error(f"Error loading dataset: {e}")
+st.set_page_config(page_title="Temperature Prediction App", layout="wide")
+
+st.title("🌡️ Temperature Prediction App")
+st.markdown("Welcome to the Temperature Prediction App for Beijing City!")
+
+# Sidebar with Header and Radio Buttons
 with st.sidebar:
-    st.header('Pages')
+    st.header("📂 Pages")
     page = st.radio("Navigate to:", ["Dataset Overview", "Explore EDA", "Model Prediction"])
 
+# Load the dataset
+@st.cache_data
+def load_data():
+    return pd.read_csv("beijing_cleaned.csv")
+
+data = load_data()
+
+# Page Navigation Logic
 if page == "Dataset Overview":
     st.subheader("📄 Dataset Overview")
-    st.info("This section shows the overview of the data")
-   
-    
+    st.dataframe(data)
+    st.write("Shape:", data.shape)
+
 elif page == "Explore EDA":
     st.subheader("📊 Exploratory Data Analysis")
-    st.info("This section explores you through EDA")
+    st.write(data.describe())
 
 elif page == "Model Prediction":
     st.subheader("🤖 Model Prediction")
-    st.info("Here You Can Predict the Temperature using different models")
+    st.info("This section will include machine learning models (coming soon).")
+
+
+
 
 
 
