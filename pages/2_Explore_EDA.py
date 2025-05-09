@@ -23,6 +23,32 @@ if selected_pollutants:
     avg_pollution.columns = ['Pollutant', 'Average Level']
     st.dataframe(avg_pollution)
 
+st.markdown("### 📝 Key Observations and Insights")
+
+st.markdown("""
+1. **Dataset Timeline:**  
+   This dataset spans from **03/01/2013 to 02/28/2017**. Based on the minimum, maximum, and mean dates, the **average observation date is around 03/01/2015**.
+
+2. **Solid Pollutants** (Particulate Matter):
+   - **PM2.5**: Mean = **78.7 µg/m³**
+   - **PM10**: Mean = **102 µg/m³**
+   - Both have a **maximum concentration of 999 µg/m³**, which is close to the upper measurement limit, indicating **extremely high pollution levels** caused by solid particles.
+
+3. **Gas Pollutants**:
+   - **CO (Carbon Monoxide)**:  
+     - Mean = **1202 µg/m³**, Max = **10000.0 µg/m³**  
+     - Indicates **severe air pollution** potential.
+   - **O3 (Ozone)**:  
+     - Mean = **56.5 µg/m³**, Max = **674 µg/m³**
+   - **NO2 (Nitrogen Dioxide)**:  
+     - Mean = **48.9 µg/m³**, Max = **264 µg/m³**  
+     - Potential to contribute to **acid rain**.
+   - **SO2 (Sulfur Dioxide)**:  
+     - Mean = **14.85 µg/m³**, Max = **411 µg/m³**  
+     - Can significantly impact **climate change**.
+""")
+
+
 # Pie chart
 st.markdown("### 🥧 Average Pollutant Levels")
 avg_pollution = data[pollutants].mean()
