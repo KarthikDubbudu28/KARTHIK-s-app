@@ -81,7 +81,7 @@ if page == "Dataset Overview":
         st.warning("No 'station' column found in dataset.")
 
 elif page == "Explore EDA":
-    st.subheader("📊 Exploratory Data Analysis")
+    
 
     # Display Summary Insights
     st.markdown("### 📌 Insights from Summary Statistics")
@@ -117,6 +117,39 @@ elif page == "Explore EDA":
         st.dataframe(mean_pollution)
     else:
         st.warning("⚠️ Please select at least one pollutant to proceed.")
+
+import matplotlib.pyplot as plt
+
+# Pie Chart of Average Pollutants
+st.markdown("### 🥧 Pie Chart of Average Pollutant Levels")
+
+# Step 1: Calculate average of each pollutant
+pollutants = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']
+avg_pollution = data[pollutants].mean()
+
+# Step 2: Colors — red for dominant, green for least
+colors = ['red', 'orange', 'yellow', 'lightblue', 'lightgreen', 'green']
+
+# Step 3: Explode each slice slightly for clarity
+explode = [0.1] * len(avg_pollution)
+
+# Step 4: Create Pie Chart
+fig, ax = plt.subplots(figsize=(8, 8))
+ax.pie(
+    avg_pollution,
+    labels=avg_pollution.index,
+    autopct='%1.1f%%',
+    startangle=140,
+    colors=colors,
+    explode=explode,
+    shadow=True
+)
+ax.set_title("Dominant Pollutants in China (Average Levels)")
+ax.axis('equal')  # Makes the pie chart circular
+
+# Step 5: Display in Streamlit
+st.pyplot(fig)
+
 
 
 
