@@ -157,3 +157,33 @@ if 'year' in data.columns:
 else:
     st.error("Column 'year' is missing from the dataset.")
 
+st.markdown("### 📍 Top 5 Stations by Pollutant Levels")
+
+# Define pollutants
+pollutant_columns = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']
+available_pollutants = [col for col in pollutant_columns if col in data.columns]
+
+# User selection
+selected_pollutants = st.multiselect(
+    "Select pollutant(s) to view top affected stations:",
+    options=available_pollutants,
+    default=[available_pollutants[0]]
+)
+
+if selected_pollutants:
+    mean_pollutant_by_station = data.groupby('station')[available_pollutants].mean()
+
+    for pollutant in selected_pollutants:
+        top5 = mean_pollutant_by_station[pollutant].sort_values(ascending=False).head(5)
+
+        st.markdown(f"#### 🔬 Top 5 Stations by **{pollutant}**")
+        fig, ax = plt.subplots(figsize=(8, 4))
+        ax.barh(top5.index, top5.values, color='skyblue')
+        ax.set_xlabel(f"{pollutant} Concentration (µg/m³)")
+        ax.set_title(f"Top 5 Stations with Highest {pollutant}")
+        ax.invert_yaxis()
+        st.pyplot(fig)
+else:
+    st.warning("⚠️ Please select at least one pollutant to display top stations.")
+
+
