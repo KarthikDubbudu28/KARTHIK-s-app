@@ -16,4 +16,6 @@ except Exception as e:
     st.error(f"Error loading dataset: {e}")
 with st.sidebar:
     st.header('Pages')
+    page = st.radio("Navigate to:", ["Dataset Overview", "Explore EDA", "Model Prediction"])
+    
     
