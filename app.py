@@ -171,6 +171,35 @@ if selected_stations:
 else:
     st.warning("Please select at least one station to view the data.")
 
+# Correlation Heatmap with Interpretation
+st.markdown("### 🔗 Correlation Heatmap of Pollutants")
+
+# Layout with two columns: heatmap and legend
+col1, col2 = st.columns([3, 2])
+
+with col1:
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f', vmin=-1, vmax=1, center=0, ax=ax)
+    ax.set_title("Correlation Heatmap of Pollutants")
+    st.pyplot(fig)
+
+with col2:
+    st.markdown("#### 📘 Interpretation Guide")
+    st.markdown("""
+    **Positive Correlations:**  
+    - `0.00 to 0.25`: Less positive correlation  
+    - `0.25 to 0.50`: Moderate positive correlation  
+    - `0.50 to 0.75`: Strong positive correlation  
+    - `0.75 to 1.00`: Very strong positive correlation  
+
+    **Negative Correlations:**  
+    - `0.00 to -0.25`: Less negative correlation  
+    - `-0.25 to -0.50`: Moderate negative correlation  
+    - `-0.50 to -0.75`: Strong negative correlation  
+    - `-0.75 to -1.00`: Very strong negative correlation  
+    """)
+
+
 
 
 
