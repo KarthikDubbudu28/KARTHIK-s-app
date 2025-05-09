@@ -80,70 +80,48 @@ if page == "Dataset Overview":
     else:
         st.warning("No 'station' column found in dataset.")
 
-
-elif page == "Explore EDA":
-   
-
-    # Insights Summary at the Beginning
-    st.markdown("### 📌 Insights from Summary Statistics")
-
-    st.markdown("""
-    1. **Timeline:**  
-       - The dataset covers the period from **03/01/2013 to 02/28/2017**.  
-       - The average date suggests the midpoint is around **03/01/2015**.
-
-    2. **Solid Pollutants (PM2.5 and PM10):**  
-       - **PM2.5:** Mean = 78.7 µg/m³  
-       - **PM10:** Mean = 102 µg/m³  
-       - Both have maximum values close to **999**, indicating **extremely high pollution levels**.
-
-    3. **Gas Pollutants (SO₂, NO₂, CO, O₃):**
-       - **CO (Carbon Monoxide):**  
-         - Mean = **1202 µg/m³**  
-         - Max = **10,000 µg/m³** → **Severe air pollution**
-
-       - **O₃ (Ozone):**  
-         - Mean = **56.5 µg/m³**, Max = **674 µg/m³**
-
-       - **NO₂ (Nitrogen Dioxide):**  
-         - Mean = **48.9 µg/m³**, Max = **264 µg/m³**  
-         - May contribute to **acid rain**
-
-       - **SO₂ (Sulfur Dioxide):**  
-         - Mean = **14.85 µg/m³**, Max = **411 µg/m³**  
-         - Can cause **climate change effects**
-    """)
 elif page == "Explore EDA":
     st.subheader("📊 Exploratory Data Analysis")
 
-    # Display Insights
+    # Display Summary Insights
     st.markdown("### 📌 Insights from Summary Statistics")
     st.markdown("""
-    (Your previous summary markdown content here...)
+    1. This dataset shows that timeline is from **03/01/2013 to 02/28/2017** based on the minimum and maximum dates, and the mean implies that it is around **03/01/2015**.
+
+    2. **Solid Pollutants** which include **PM2.5** and **PM10**:
+    - PM2.5 has a mean of **78.7 µg/m³**.
+    - PM10 has a mean of **102 µg/m³**.
+    - Both have a max value of **999 µg/m³**, indicating **extremely high pollution**.
+
+    3. **Gas Pollutants**: **SO2, NO2, CO, O3**
+    - **CO (Carbon Monoxide)**: Highest mean over **1202 µg/m³**, max of **10000 µg/m³**.
+    - **O3 (Ozone)**: Mean of **56.5 µg/m³**, max **674 µg/m³**.
+    - **NO2 (Nitrogen Dioxide)**: Mean of **48.9 µg/m³**, max **264 µg/m³**.
+    - **SO2 (Sulfur Dioxide)**: Mean of **14.85 µg/m³**, max **411 µg/m³**.
     """)
 
     # Pollutants Selection
-    st.markdown("### 🧪 Pollutant Mean Levels")
+    st.markdown("### 🧪 Average Levels of Selected Pollutants")
     pollutants = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']
-    
+
     selected_pollutants = st.multiselect(
-        "Select pollutants to view their average levels:",
+        label="Select pollutants to display average levels:",
         options=pollutants,
-        default=["PM2.5"],  # Default selection to ensure minimum one is selected
-        help="Hold Ctrl (Windows) or Command (Mac) to select multiple pollutants."
+        default=["PM2.5"],  # Ensures at least one is shown by default
+        help="Hold Ctrl (Windows) or Command (Mac) to select multiple"
     )
 
     if selected_pollutants:
-        poll = data[selected_pollutants].mean()
-        pollutants_df = poll.to_frame().reset_index()
-        pollutants_df.columns = ['Pollutant', 'Level']
-        st.dataframe(pollutants_df)
+        mean_pollution = data[selected_pollutants].mean().reset_index()
+        mean_pollution.columns = ['Pollutant', 'Average Level (µg/m³)']
+        st.dataframe(mean_pollution)
     else:
-        st.warning("⚠️ Please select at least one pollutant to display data.")
+        st.warning("⚠️ Please select at least one pollutant to proceed.")
 
-    # Continue with other EDA content
-    st.markdown("### 📈 Data Summary")
-    st.write(data.describe())
+
+
+
+
 
    
 
