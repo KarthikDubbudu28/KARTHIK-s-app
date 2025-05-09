@@ -15,14 +15,6 @@ data = load_data()
 st.markdown("### 📌 Summary Insights")
 st.write(data.describe())
 
-pollutants = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']
-selected_pollutants = st.multiselect("Select pollutants to show average levels:", pollutants, default=["PM2.5"])
-
-if selected_pollutants:
-    avg_pollution = data[selected_pollutants].mean().reset_index()
-    avg_pollution.columns = ['Pollutant', 'Average Level']
-    st.dataframe(avg_pollution)
-
 st.markdown("### 📝 Key Observations and Insights")
 
 st.markdown("""
@@ -47,6 +39,14 @@ st.markdown("""
      - Mean = **14.85 µg/m³**, Max = **411 µg/m³**  
      - Can significantly impact **climate change**.
 """)
+
+pollutants = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']
+selected_pollutants = st.multiselect("Select pollutants to show average levels:", pollutants, default=["PM2.5"])
+
+if selected_pollutants:
+    avg_pollution = data[selected_pollutants].mean().reset_index()
+    avg_pollution.columns = ['Pollutant', 'Average Level']
+    st.dataframe(avg_pollution)
 
 
 # Pie chart
