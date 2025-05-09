@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 st.set_page_config(page_title="Temperature Prediction App", layout="wide")
@@ -172,11 +174,14 @@ else:
     st.warning("Please select at least one station to view the data.")
 
 import seaborn as sns
+import matplotlib.pyplot as plt
 
-# Correlation Heatmap with Interpretation
+# Only include this if it's not already part of your script
+pollutants = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']
+numeric_pollutants_df = data[pollutants].apply(pd.to_numeric, errors='coerce')
+correlation_matrix = numeric_pollutants_df.corr()
+
 st.markdown("### 🔗 Correlation Heatmap of Pollutants")
-
-# Layout with two columns: heatmap and legend
 col1, col2 = st.columns([3, 2])
 
 with col1:
@@ -200,6 +205,12 @@ with col2:
     - `-0.50 to -0.75`: Strong negative correlation  
     - `-0.75 to -1.00`: Very strong negative correlation  
     """)
+
+
+
+
+
+   
 
 
 
