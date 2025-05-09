@@ -171,6 +171,8 @@ if selected_stations:
 else:
     st.warning("Please select at least one station to view the data.")
 
+import seaborn as sns
+
 # Correlation Heatmap with Interpretation
 st.markdown("### 🔗 Correlation Heatmap of Pollutants")
 
