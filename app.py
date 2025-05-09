@@ -80,6 +80,11 @@ if page == "Dataset Overview":
     else:
         st.warning("No 'station' column found in dataset.")
 
+
+elif page == "Explore EDA":
+    st.subheader("📊 Exploratory Data Analysis")
+
+    # Insights Summary at the Beginning
     st.markdown("### 📌 Insights from Summary Statistics")
 
     st.markdown("""
@@ -108,6 +113,9 @@ if page == "Dataset Overview":
          - Mean = **14.85 µg/m³**, Max = **411 µg/m³**  
          - Can cause **climate change effects**
     """)
+
+
+
 
 
 
