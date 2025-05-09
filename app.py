@@ -8,21 +8,10 @@ st.markdown("<h1 style='text-align: center;'>🌡️ Temperature Prediction App<
 st.markdown("<h3 style='text-align: center;'>👋 Welcome to the Temperature Prediction App for Beijing City!</h3>", unsafe_allow_html=True)
 st.markdown("---")
 
-# --- Navigation using Radio Buttons ---
-st.markdown("### 📂 Navigate to:")
-selected_page = st.radio(
-    "Choose a section to explore:",
-    ["📄 Dataset Overview", "📊 Exploratory Data Analysis", "🤖 Model Prediction"],
-    horizontal=True
-)
+# --- Home content ---
+st.markdown("### 📌 Use the sidebar on the left to navigate through the app pages.")
+st.image("https://i.imgur.com/Nk0YmlL.png", caption="Beijing City Air Quality", use_column_width=True)
 
-# --- Redirection based on selection ---
-if selected_page == "📄 Dataset Overview":
-    st.switch_page("pages/Dataset_Overview.py")
-elif selected_page == "📊 Exploratory Data Analysis":
-    st.switch_page("pages/Explore_EDA.py")
-elif selected_page == "📈 Model Prediction":
-    st.switch_page("pages/Model_Prediction.py")
 
 
 
