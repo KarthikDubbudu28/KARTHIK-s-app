@@ -11,13 +11,7 @@ st.markdown("---")
 # --- Home Content ---
 st.markdown("### 📌 Use the sidebar on the left to navigate through the app pages.")
 
-# ✅ Use a reliable placeholder image
-st.image("https://via.placeholder.com/800x400.png?text=Beijing+Air+Quality+Dashboard",
-         caption="Beijing Air Quality Dashboard", use_container_width=True)
 
-# Optional footer
-st.markdown("---")
-st.markdown("<small>Developed as part of a pollution & temperature prediction project.</small>", unsafe_allow_html=True)
 
 
 
