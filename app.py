@@ -82,7 +82,7 @@ if page == "Dataset Overview":
 
 
 elif page == "Explore EDA":
-    st.subheader("📊 Exploratory Data Analysis")
+   
 
     # Insights Summary at the Beginning
     st.markdown("### 📌 Insights from Summary Statistics")
