@@ -40,8 +40,7 @@ else:
 
 
 
-if data is not None:
-    st.write("Shape:", data.shape)
+
 
     # Section: Pollutant Categories
     st.subheader("🧪 Pollutant Categories")
