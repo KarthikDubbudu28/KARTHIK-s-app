@@ -13,7 +13,7 @@ In this study, the air quality monitoring stations across Beijing were categoriz
 - **Shunyi** was identified as **Industrial** due to its known industrial development zones and manufacturing hubs ([Beijing Government Portal](https://english.beijing.gov.cn/investinginbeijing/WhyBeijing/DistrictsParks/Shunyi/)).
 - **Tiantan (Temple of Heaven)** was marked as a **Hotspot** due to its cultural significance and large tourist footfall, being a UNESCO World Heritage Site ([UNESCO](https://whc.unesco.org/en/list/881)).
 
-This classification helps in analyzing spatial variations in temperature and pollution relationships across diverse environments.
+
 """)
 
 
