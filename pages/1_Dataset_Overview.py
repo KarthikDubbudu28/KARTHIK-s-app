@@ -5,7 +5,7 @@ from io import StringIO
 
 
 # Page title based on which file this is
-current_page = "Dataset Overview"  # Change this string in each file appropriately
+current_page = "Dataset_Overview"  # Change this string in each file appropriately
 
 # Radio-based page navigation
 page = st.radio(
