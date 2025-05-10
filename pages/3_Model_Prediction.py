@@ -28,12 +28,14 @@ target = 'TEMP'
 
 # Sidebar
 st.sidebar.title("Model Prediction Options")
-selected_models = st.sidebar.multiselect(
-    "Select Models to Compare",
+selected_model = st.sidebar.selectbox(
+    "Select Model to Predict",
     ['Random Forest', 'KNN', 'Decision Tree', 'Support Vector Regression', 'XGBoost'],
-    default=['Random Forest']
+    index=0  # Default to 'Random Forest'
 )
 use_grid_search = st.sidebar.checkbox("Use Grid Search (slower)")
+
+
 
 # Main UI
 st.title("🌡️ Temperature Prediction using Machine Learning")
