@@ -11,6 +11,11 @@ from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 
+# Initialize prediction history in session
+if 'prediction_history' not in st.session_state:
+    st.session_state.prediction_history = []
+
+
 # Load dataset from URL
 @st.cache_data
 def load_data():
@@ -99,6 +104,14 @@ if st.button("Predict Temperature"):
     # Optional: Bar chart comparison placeholder (using only one algorithm in this view)
     results = [{'Model': algorithm, 'Predicted TEMP': prediction}]
     results_df = pd.DataFrame(results)
+    # Store in session state history
+st.session_state.prediction_history.append({
+    'Input': user_input,
+    'Results': results_df.to_dict(orient='records')
+})
+
+
+
 
     st.subheader("📊 Comparison Table of Predicted Temperature")
     st.dataframe(results_df)
@@ -108,6 +121,35 @@ if st.button("Predict Temperature"):
                  title="Predicted Temperature by Selected Algorithm",
                  text='Predicted TEMP')
     st.plotly_chart(fig, use_container_width=True)
+
+# Store in session state history
+st.session_state.prediction_history.append({
+    'Input': user_input,
+    'Results': results_df.to_dict(orient='records')
+})
+
+# Download Option
+st.subheader("⬇️ Download Results")
+csv = results_df.to_csv(index=False).encode('utf-8')
+st.download_button(
+    label="Download Prediction Results as CSV",
+    data=csv,
+    file_name='temperature_predictions.csv',
+    mime='text/csv',
+)
+
+
+# Option to download results
+st.subheader("⬇️ Download Results")
+
+csv = results_df.to_csv(index=False).encode('utf-8')
+st.download_button(
+    label="Download Prediction Results as CSV",
+    data=csv,
+    file_name='temperature_predictions.csv',
+    mime='text/csv',
+)
+
 
 
 
