@@ -19,6 +19,31 @@ def load_data():
 # Load data
 data = load_data()
 
+
+
+# Add this after loading your dataset into 'data'
+# Ensure 'date' is parsed as datetime and 'year' is extracted
+data['date'] = pd.to_datetime(data['date'], errors='coerce')
+data['year'] = data['date'].dt.year
+
+# Drop rows where TEMP or year is missing
+temp_data = data[['TEMP', 'year']].dropna()
+
+# Find max and min temperatures
+max_temp_row = temp_data[temp_data['TEMP'] == temp_data['TEMP'].max()].iloc[0]
+min_temp_row = temp_data[temp_data['TEMP'] == temp_data['TEMP'].min()].iloc[0]
+
+# Create result table
+extremes_df = pd.DataFrame({
+    "Type": ["Highest Temperature", "Lowest Temperature"],
+    "Temperature (°C)": [max_temp_row['TEMP'], min_temp_row['TEMP']],
+    "Year": [int(max_temp_row['year']), int(min_temp_row['year'])]
+})
+
+st.markdown("### 🌡️ Temperature Extremes by Year")
+st.table(extremes_df)
+
+
 if data is not None:
     st.write("Shape:", data.shape)
 
