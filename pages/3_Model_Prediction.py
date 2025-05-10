@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.express as px
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
@@ -10,16 +9,14 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
 from sklearn.metrics import mean_squared_error, r2_score
+import plotly.express as px
 
-# Initialize prediction history in session
 if 'prediction_history' not in st.session_state:
     st.session_state.prediction_history = []
 
-
-# Load dataset from URL
 @st.cache_data
 def load_data():
-    url = "https://raw.githubusercontent.com/KarthikDubbudu28/KARTHIK-s-app/refs/heads/main/beijing_cleaned.csv"  # replace with actual URL
+    url = "https://raw.githubusercontent.com/KarthikDubbudu28/KARTHIK-s-app/refs/heads/main/beijing_cleaned.csv"
     df = pd.read_csv(url)
     df.dropna(subset=['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3', 'TEMP'], inplace=True)
     return df
@@ -28,17 +25,14 @@ df = load_data()
 features = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']
 target = 'TEMP'
 
-# Sidebar
 st.sidebar.title("Model Prediction Options")
 algorithm = st.sidebar.selectbox("Choose Algorithm", 
                                  ['Support Vector Regression', 'KNN', 'Decision Tree', 'Random Forest', 'XGBoost'])
-
 use_grid_search = st.sidebar.checkbox("Use Grid Search")
 
-# Main
 st.title("🔍 Predict Temperature using ML Algorithms")
-
 st.subheader("📊 Enter pollutant values:")
+
 user_input = []
 for feature in features:
     val = st.number_input(f"Enter {feature}", format="%.2f")
@@ -47,15 +41,12 @@ for feature in features:
 if st.button("Predict Temperature"):
     X = df[features]
     y = df[target]
-
-    # Split and scale
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
     user_input_scaled = scaler.transform([user_input])
 
-    # Initialize model
     model = None
     params = {}
 
@@ -80,7 +71,6 @@ if st.button("Predict Temperature"):
         if use_grid_search:
             params = {'n_estimators': [50, 100], 'max_depth': [3, 5], 'learning_rate': [0.1, 0.05]}
 
-    # Train model
     if use_grid_search and params:
         search = GridSearchCV(model, params, scoring='neg_root_mean_squared_error', cv=3, n_jobs=-1)
         search.fit(X_train_scaled, y_train)
@@ -88,67 +78,44 @@ if st.button("Predict Temperature"):
     else:
         model.fit(X_train_scaled, y_train)
 
-    # Predict
     prediction = model.predict(user_input_scaled)[0]
     y_pred_test = model.predict(X_test_scaled)
     mse = mean_squared_error(y_test, y_pred_test)
     rmse = np.sqrt(mse)
     r2 = r2_score(y_test, y_pred_test)
 
-    # Show results
+
     st.success(f"🌡️ Here is your predicted temperature: **{prediction:.2f} °C**")
-    st.write(" Model Performance on Test Set:")
     st.write(f" RMSE: {rmse:.2f}")
     st.write(f" R² Score: {r2:.2f}")
 
-    # Optional: Bar chart comparison placeholder (using only one algorithm in this view)
+    # Comparison Table and Bar Chart
     results = [{'Model': algorithm, 'Predicted TEMP': prediction}]
     results_df = pd.DataFrame(results)
-    # Store in session state history
-st.session_state.prediction_history.append({
-    'Input': user_input,
-    'Results': results_df.to_dict(orient='records')
-})
-
-
-
-
     st.subheader("📊 Comparison Table of Predicted Temperature")
     st.dataframe(results_df)
-
     st.subheader("📈 Temperature Predictions by Model")
-    fig = px.bar(results_df, x='Model', y='Predicted TEMP', color='Model',
-                 title="Predicted Temperature by Selected Algorithm",
-                 text='Predicted TEMP')
+    fig = px.bar(results_df, x='Model', y='Predicted TEMP', color='Model', text='Predicted TEMP')
     st.plotly_chart(fig, use_container_width=True)
 
-# Store in session state history
-st.session_state.prediction_history.append({
-    'Input': user_input,
-    'Results': results_df.to_dict(orient='records')
-})
+    # Save prediction history
+    st.session_state.prediction_history.append({
+        "Input": dict(zip(features, user_input)),
+        "Results": results
+    })
 
-# Download Option
-st.subheader("⬇️ Download Results")
-csv = results_df.to_csv(index=False).encode('utf-8')
-st.download_button(
-    label="Download Prediction Results as CSV",
-    data=csv,
-    file_name='temperature_predictions.csv',
-    mime='text/csv',
-)
+# Show history
+if st.session_state.prediction_history:
+    st.subheader("🕒 Prediction History in This Session")
+    for i, record in enumerate(st.session_state.prediction_history):
+        st.markdown(f"**Prediction {i + 1}:** Input = {record['Input']}")
+        df_result = pd.DataFrame(record['Results'])
+        st.dataframe(df_result)
 
+if st.button("🧹 Clear Prediction History"):
+    st.session_state.prediction_history = []
+    st.success("Prediction history cleared.")
 
-# Option to download results
-st.subheader("⬇️ Download Results")
-
-csv = results_df.to_csv(index=False).encode('utf-8')
-st.download_button(
-    label="Download Prediction Results as CSV",
-    data=csv,
-    file_name='temperature_predictions.csv',
-    mime='text/csv',
-)
 
 
 
