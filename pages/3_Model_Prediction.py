@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.express as px
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
@@ -89,13 +90,25 @@ if st.button("Predict Temperature"):
     rmse = np.sqrt(mse)
     r2 = r2_score(y_test, y_pred_test)
 
-
-
     # Show results
     st.success(f"🌡️ Here is your predicted temperature: **{prediction:.2f} °C**")
-    st.write("📈 Model Performance on Test Set:")
+    st.write(" Model Performance on Test Set:")
     st.write(f" RMSE: {rmse:.2f}")
     st.write(f" R² Score: {r2:.2f}")
+
+    # Optional: Bar chart comparison placeholder (using only one algorithm in this view)
+    results = [{'Model': algorithm, 'Predicted TEMP': prediction}]
+    results_df = pd.DataFrame(results)
+
+    st.subheader("📊 Comparison Table of Predicted Temperature")
+    st.dataframe(results_df)
+
+    st.subheader("📈 Temperature Predictions by Model")
+    fig = px.bar(results_df, x='Model', y='Predicted TEMP', color='Model',
+                 title="Predicted Temperature by Selected Algorithm",
+                 text='Predicted TEMP')
+    st.plotly_chart(fig, use_container_width=True)
+
 
 
 
