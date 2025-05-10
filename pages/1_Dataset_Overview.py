@@ -38,7 +38,10 @@ if datetime_column in data.columns:
 else:
     st.error(f"Column '{datetime_column}' not found in dataset. Check the dataset's column names.")
 
-    if data is not None:
+    # Load data
+data = load_data()
+
+if data is not None:
     st.write("Shape:", data.shape)
 
 
