@@ -8,7 +8,7 @@ st.title("🌡️ Temperature Prediction App")
 st.subheader("Welcome to the Temperature Prediction App for Beijing City!")
 
 # Radio button navigation
-page = st.radio(
+pages = st.radio(
     "Navigate to a page:",
     ("Home", "Dataset Overview", "Explore EDA", "Model Prediction"),
     index=0
