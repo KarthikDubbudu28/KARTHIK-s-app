@@ -1,5 +1,22 @@
 import streamlit as st
 import pandas as pd
+import streamlit as st
+
+st.subheader("📍 Monitoring Site Classification Justification")
+
+st.markdown("""
+In this study, the air quality monitoring stations across Beijing were categorized based on their geographic and socio-environmental characteristics:
+
+- **Wanshouxigong** was classified as **Urban** due to its central location in downtown Beijing, commonly used in studies analyzing urban air pollution patterns ([ACP, 2018](https://acp.copernicus.org/articles/18/6771/2018/)).
+- **Wanliu**, located in the northwestern Haidian District, is considered **Suburban**, consistent with its classification in local administrative maps.
+- **Dingling**, a Ming tomb site situated in Changping District's northern countryside, was labeled **Rural**, reflecting its low-density, green-space surroundings ([Wikipedia](https://en.wikipedia.org/wiki/Ding_Mausoleum)).
+- **Shunyi** was identified as **Industrial** due to its known industrial development zones and manufacturing hubs ([Beijing Government Portal](https://english.beijing.gov.cn/investinginbeijing/WhyBeijing/DistrictsParks/Shunyi/)).
+- **Tiantan (Temple of Heaven)** was marked as a **Hotspot** due to its cultural significance and large tourist footfall, being a UNESCO World Heritage Site ([UNESCO](https://whc.unesco.org/en/list/881)).
+
+This classification helps in analyzing spatial variations in temperature and pollution relationships across diverse environments.
+""")
+
+
 
 st.header("📂 Dataset Overview")
 
