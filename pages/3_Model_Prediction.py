@@ -43,8 +43,14 @@ for feature in features:
     user_input.append(val)
 
 if st.button("🔮 Predict Temperature"):
-    X = df[features]
-    y = df[target]
+    # Optional SVR sampling for speed
+    if algorithm == 'Support Vector Regression':
+        df_sampled = df.sample(n=5000, random_state=42) if len(df) > 5000 else df
+    else:
+        df_sampled = df
+
+    X = df_sampled[features]
+    y = df_sampled[target]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     scaler = StandardScaler()
@@ -55,9 +61,10 @@ if st.button("🔮 Predict Temperature"):
     # Select model and parameters
     model = None
     params = {}
+
     if algorithm == 'Support Vector Regression':
-        model = SVR()
-        params = {'C': [1], 'gamma': ['scale'], 'epsilon': [0.1]}
+        # Use fast linear kernel and avoid grid search
+        model = SVR(kernel='linear', C=1.0, epsilon=0.2)
     elif algorithm == 'KNN':
         model = KNeighborsRegressor()
         params = {'n_neighbors': [5]}
@@ -72,12 +79,14 @@ if st.button("🔮 Predict Temperature"):
         params = {'n_estimators': [50], 'max_depth': [3], 'learning_rate': [0.1]}
 
     # Fit model
-    if use_grid_search:
+    if use_grid_search and algorithm != 'Support Vector Regression':
         search = GridSearchCV(model, params, scoring='neg_root_mean_squared_error', cv=3, n_jobs=-1)
         search.fit(X_train_scaled, y_train)
         model = search.best_estimator_
+    elif algorithm != 'Support Vector Regression':
+        model.set_params(**{k: v[0] for k, v in params.items()})
+        model.fit(X_train_scaled, y_train)
     else:
-        model.set_params(**{k: v[0] for k, v in params.items()})  # use first value
         model.fit(X_train_scaled, y_train)
 
     # Predict
@@ -90,9 +99,9 @@ if st.button("🔮 Predict Temperature"):
 
     # Results
     st.success(f"🌡️ Predicted Temperature: **{prediction:.2f} °C**")
-    st.write(f"📉 RMSE: **{rmse:.2f}**")
-    st.write(f"📈 R² Score: **{r2:.2f}**")
-    st.write(f"⚙️ Grid Search Used: **{'Yes' if use_grid_search else 'No'}**")
+    st.write(f" RMSE: **{rmse:.2f}**")
+    st.write(f" R² Score: **{r2:.2f}**")
+    st.write(f" Grid Search Used: **{'Yes' if use_grid_search and algorithm != 'Support Vector Regression' else 'No'}**")
 
     # Comparison Table & Chart
     results = [{
@@ -100,7 +109,7 @@ if st.button("🔮 Predict Temperature"):
         'Predicted TEMP': prediction,
         'RMSE': round(rmse, 2),
         'R² Score': round(r2, 2),
-        'Grid Search': 'Yes' if use_grid_search else 'No'
+        'Grid Search': 'Yes' if use_grid_search and algorithm != 'Support Vector Regression' else 'No'
     }]
     results_df = pd.DataFrame(results)
     st.subheader("📊 Comparison Table")
