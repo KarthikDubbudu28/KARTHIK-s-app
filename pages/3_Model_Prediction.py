@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 
 # Load the dataset
-@st.cache
+@st.cache_data
 def load_data():
     url = 'https://raw.githubusercontent.com/KarthikDubbudu28/KARTHIK-s-app/refs/heads/main/beijing_cleaned.csv'  # Replace with actual URL
     df = pd.read_csv(url)
