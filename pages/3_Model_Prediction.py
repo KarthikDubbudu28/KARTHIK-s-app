@@ -9,103 +9,94 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
 from sklearn.metrics import mean_squared_error, r2_score
-import matplotlib.pyplot as plt
-import plotly.express as px
 
-# Load the dataset from URL
+# Load dataset from URL
 @st.cache_data
 def load_data():
-    url = 'https://raw.githubusercontent.com/KarthikDubbudu28/KARTHIK-s-app/refs/heads/main/beijing_cleaned.csv'  # 🔁 Update this URL
+    url = "https://raw.githubusercontent.com/KarthikDubbudu28/KARTHIK-s-app/refs/heads/main/beijing_cleaned.csv"  # replace with actual URL
     df = pd.read_csv(url)
+    df.dropna(subset=['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3', 'TEMP'], inplace=True)
     return df
 
-# App Title
-st.title("🌡️ Temperature Prediction Based on Pollutants")
-
-# Load and preprocess data
 df = load_data()
 features = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']
 target = 'TEMP'
-df = df.dropna(subset=features + [target])
 
-# Sidebar inputs
-st.sidebar.header("🔢 Input Pollutant Values")
-user_inputs = {
-    feat: st.sidebar.number_input(f"{feat}", value=0.0, step=0.1, format="%.2f")
-    for feat in features
-}
-user_data = pd.DataFrame([user_inputs])
+# Sidebar
+st.sidebar.title("Model Prediction Options")
+algorithm = st.sidebar.selectbox("Choose Algorithm", 
+                                 ['Support Vector Regression', 'KNN', 'Decision Tree', 'Random Forest', 'XGBoost'])
 
-# Sidebar model selection
-st.sidebar.header("🧠 Model Selection")
-model_choice = st.sidebar.selectbox("Select a Model", ['SVR', 'KNN', 'Decision Tree', 'Random Forest', 'XGBoost'])
-grid_search_enabled = st.sidebar.checkbox("Enable Grid Search")
+use_grid_search = st.sidebar.checkbox("Use Grid Search")
 
-# Prepare training data
-X = df[features]
-y = df[target]
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Main
+st.title("🔍 Predict Temperature using ML Algorithms")
 
-# Standardize features
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
-user_scaled = scaler.transform(user_data)
+st.subheader("📊 Enter pollutant values:")
+user_input = []
+for feature in features:
+    val = st.number_input(f"Enter {feature}", format="%.2f")
+    user_input.append(val)
 
-# Model definitions
-models = {
-    'SVR': SVR(),
-    'KNN': KNeighborsRegressor(),
-    'Decision Tree': DecisionTreeRegressor(random_state=42),
-    'Random Forest': RandomForestRegressor(random_state=42),
-    'XGBoost': XGBRegressor(random_state=42, verbosity=0)
-}
+if st.button("Predict Temperature"):
+    X = df[features]
+    y = df[target]
 
-param_grids = {
-    'SVR': {'C': [1, 10], 'gamma': [0.1, 0.01], 'epsilon': [0.1]},
-    'KNN': {'n_neighbors': [3, 5], 'weights': ['uniform', 'distance']},
-    'Decision Tree': {'max_depth': [None, 5, 10], 'min_samples_split': [2, 5]},
-    'Random Forest': {'n_estimators': [10, 50], 'max_depth': [None, 5]},
-    'XGBoost': {'n_estimators': [50, 100], 'learning_rate': [0.1], 'max_depth': [3, 5]}
-}
+    # Split and scale
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+    user_input_scaled = scaler.transform([user_input])
 
-# 🔘 Predict Button
-if st.button("🎯 Predict Temperature"):
+    # Initialize model
+    model = None
+    params = {}
 
-    # Train model (with or without grid search)
-    if grid_search_enabled:
-        st.info("Performing grid search...")
-        grid = GridSearchCV(models[model_choice], param_grids[model_choice], cv=3, scoring='neg_mean_squared_error')
-        grid.fit(X_train_scaled, y_train)
-        model = grid.best_estimator_
-        st.success(f"Best parameters: {grid.best_params_}")
+    if algorithm == 'Support Vector Regression':
+        model = SVR()
+        if use_grid_search:
+            params = {'C': [1, 10], 'gamma': [0.1, 0.01], 'epsilon': [0.1, 0.2]}
+    elif algorithm == 'KNN':
+        model = KNeighborsRegressor()
+        if use_grid_search:
+            params = {'n_neighbors': [3, 5, 7]}
+    elif algorithm == 'Decision Tree':
+        model = DecisionTreeRegressor()
+        if use_grid_search:
+            params = {'max_depth': [None, 5, 10], 'min_samples_split': [2, 5], 'min_samples_leaf': [1, 2]}
+    elif algorithm == 'Random Forest':
+        model = RandomForestRegressor(n_jobs=-1)
+        if use_grid_search:
+            params = {'n_estimators': [50, 100], 'max_depth': [None, 5], 'min_samples_split': [2, 5]}
+    elif algorithm == 'XGBoost':
+        model = XGBRegressor(n_jobs=-1)
+        if use_grid_search:
+            params = {'n_estimators': [50, 100], 'max_depth': [3, 5], 'learning_rate': [0.1, 0.05]}
+
+    # Train model
+    if use_grid_search and params:
+        search = GridSearchCV(model, params, scoring='neg_root_mean_squared_error', cv=3, n_jobs=-1)
+        search.fit(X_train_scaled, y_train)
+        model = search.best_estimator_
     else:
-        model = models[model_choice]
         model.fit(X_train_scaled, y_train)
 
-    # Predictions
-    y_test_pred = model.predict(X_test_scaled)
-    y_user_pred = model.predict(user_scaled)[0]
+    # Predict
+    prediction = model.predict(user_input_scaled)[0]
+    y_pred_test = model.predict(X_test_scaled)
+    mse = mean_squared_error(y_test, y_pred_test)
+    rmse = np.sqrt(mse)
+    r2 = r2_score(y_test, y_pred_test)
 
-    # Metrics
-    rmse = np.sqrt(mean_squared_error(y_test, y_test_pred))
-    r2 = r2_score(y_test, y_test_pred)
 
-    # Results
-    st.subheader("📊 Prediction Results")
-    st.write(f"**Predicted Temperature**: 🌡️ `{y_user_pred:.2f}°C`")
-    st.write(f"**RMSE on Test Set**: `{rmse:.2f}`")
-    st.write(f"**R² Score**: `{r2:.2f}`")
 
-    # Comparison chart (optional)
-    st.subheader("📈 Actual vs Predicted")
-    fig, ax = plt.subplots()
-    ax.scatter(y_test, y_test_pred, alpha=0.5)
-    ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', linestyle='--')
-    ax.set_xlabel("Actual TEMP")
-    ax.set_ylabel("Predicted TEMP")
-    ax.set_title("Actual vs Predicted Temperature")
-    st.pyplot(fig)
+    # Show results
+    st.success(f"🌡️ Here is your predicted temperature: **{prediction:.2f} °C**")
+    st.write("📈 Model Performance on Test Set:")
+    st.write(f" RMSE: {rmse:.2f}")
+    st.write(f" R² Score: {r2:.2f}")
+
 
 
 
