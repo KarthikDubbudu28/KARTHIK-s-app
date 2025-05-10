@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
 from sklearn.neighbors import KNeighborsRegressor
@@ -9,103 +9,142 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
 from sklearn.metrics import mean_squared_error, r2_score
-import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+import plotly.express as px
 
-# Load the dataset from URL
-@st.cache_data
+# Load the dataset
+@st.cache
 def load_data():
-    url = "https://raw.githubusercontent.com/KarthikDubbudu28/KARTHIK-s-app/refs/heads/main/beijing_cleaned.csv" 
+    url = 'https://raw.githubusercontent.com/KarthikDubbudu28/KARTHIK-s-app/refs/heads/main/beijing_cleaned.csv'  # Replace with actual URL
     df = pd.read_csv(url)
-    return df.dropna(subset=['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3', 'TEMP'])
+    return df
 
-df = load_data()
-pollutants = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']
+# Feature selection and target variable
+features = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']
 target = 'TEMP'
 
-st.title("🌡️ Model Prediction Page")
-st.subheader("Enter pollutant values to predict temperature using selected ML algorithms")
+# Load data and display dataset preview
+df = load_data()
+st.write("### Dataset Preview")
+st.write(df.head())
 
-# --- Sidebar Input ---
-selected_pollutants = st.multiselect("Select Pollutants", pollutants, default=pollutants)
+# User Input for feature values
+st.sidebar.header('Enter Values for Prediction')
 
-if len(selected_pollutants) != len(pollutants):
-    st.warning("You must select all pollutants for accurate prediction.")
-    st.stop()
+# Create input fields for user to enter values for pollutants
+user_inputs = {
+    'PM2.5': st.sidebar.number_input('PM2.5', value=0.0, step=0.1),
+    'PM10': st.sidebar.number_input('PM10', value=0.0, step=0.1),
+    'SO2': st.sidebar.number_input('SO2', value=0.0, step=0.1),
+    'NO2': st.sidebar.number_input('NO2', value=0.0, step=0.1),
+    'CO': st.sidebar.number_input('CO', value=0.0, step=0.1),
+    'O3': st.sidebar.number_input('O3', value=0.0, step=0.1),
+}
 
-user_input = {}
-for pollutant in selected_pollutants:
-    user_input[pollutant] = st.number_input(f"Enter value for {pollutant}", value=0.0, format="%.2f")
+# Convert the user inputs to a DataFrame
+user_data = pd.DataFrame(user_inputs, index=[0])
 
-selected_models = st.multiselect(
-    "Select Models",
-    ['Support Vector Regression', 'KNN', 'Decision Tree', 'Random Forest', 'XGBoost'],
-    default=['Support Vector Regression']
+# Model Selection
+model_choice = st.sidebar.selectbox(
+    'Select Model',
+    ['SVR', 'KNN', 'Decision Tree', 'Random Forest', 'XGBoost']
 )
 
-use_grid_search = st.checkbox("Use Grid Search to Tune Hyperparameters", value=False)
+# Grid Search Option
+grid_search = st.sidebar.checkbox('Enable Grid Search')
 
-if st.button("Predict Temperature"):
-    X = df[selected_pollutants]
-    y = df[target]
+# Load dataset and define features
+X = df[features]
+y = df[target]
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train)
-    X_user_scaled = scaler.transform([list(user_input.values())])
+# Split the dataset
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    results = []
+# Feature scaling
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
 
-    for model_name in selected_models:
-        if model_name == "Support Vector Regression":
-            model = SVR()
-            if use_grid_search:
-                param_grid = {'C': [1, 10], 'gamma': [0.01, 0.1], 'epsilon': [0.1, 0.2]}
-                model = GridSearchCV(SVR(), param_grid, cv=3, n_jobs=-1)
-        elif model_name == "KNN":
-            model = KNeighborsRegressor()
-            if use_grid_search:
-                param_grid = {'n_neighbors': [3, 5, 7]}
-                model = GridSearchCV(KNeighborsRegressor(), param_grid, cv=3, n_jobs=-1)
-        elif model_name == "Decision Tree":
-            model = DecisionTreeRegressor()
-            if use_grid_search:
-                param_grid = {'max_depth': [None, 5, 10], 'min_samples_split': [2, 5]}
-                model = GridSearchCV(DecisionTreeRegressor(), param_grid, cv=3, n_jobs=-1)
-        elif model_name == "Random Forest":
-            model = RandomForestRegressor()
-            if use_grid_search:
-                param_grid = {'n_estimators': [10, 50], 'max_depth': [None, 10]}
-                model = GridSearchCV(RandomForestRegressor(), param_grid, cv=3, n_jobs=-1)
-        elif model_name == "XGBoost":
-            model = XGBRegressor(verbosity=0)
-            if use_grid_search:
-                param_grid = {'n_estimators': [50, 100], 'max_depth': [3, 5], 'learning_rate': [0.05, 0.1]}
-                model = GridSearchCV(XGBRegressor(verbosity=0), param_grid, cv=3, n_jobs=-1)
+# Model Dictionary for easy access
+models = {
+    'SVR': SVR(),
+    'KNN': KNeighborsRegressor(),
+    'Decision Tree': DecisionTreeRegressor(),
+    'Random Forest': RandomForestRegressor(),
+    'XGBoost': XGBRegressor()
+}
 
-        model.fit(X_train_scaled, y_train)
-        prediction = model.predict(X_user_scaled)[0]
+# Hyperparameters for Grid Search (if enabled)
+param_grid = {
+    'SVR': {'C': [1, 10], 'gamma': [0.1, 0.01], 'epsilon': [0.1, 0.2]},
+    'KNN': {'n_neighbors': [3, 5, 10], 'weights': ['uniform', 'distance']},
+    'Decision Tree': {'max_depth': [None, 5, 10], 'min_samples_split': [2, 5], 'min_samples_leaf': [1, 2]},
+    'Random Forest': {'n_estimators': [10, 50, 100], 'max_depth': [None, 5, 10], 'min_samples_split': [2, 5]},
+    'XGBoost': {'n_estimators': [50, 100], 'learning_rate': [0.1, 0.01], 'max_depth': [5, 10], 'subsample': [0.8, 1]}
+}
 
-        # Metrics using test set
-        y_pred_test = model.predict(scaler.transform(X_test))
-        rmse = mean_squared_error(y_test, y_pred_test, squared=False)
-        r2 = r2_score(y_test, y_pred_test)
+# Fit the selected model
+if grid_search:
+    from sklearn.model_selection import GridSearchCV
 
-        results.append({
-            'Model': model_name,
-            'Predicted TEMP': round(prediction, 2),
-            'RMSE': round(rmse, 2),
-            'R²': round(r2, 2)
-        })
+    st.write("Performing Grid Search...")
 
-    # --- Display results ---
-    st.success("🎯 Here is your predicted temperature based on selected models:")
-    result_df = pd.DataFrame(results)
-    st.dataframe(result_df)
+    model = models[model_choice]
+    grid_search_cv = GridSearchCV(estimator=model, param_grid=param_grid[model_choice], cv=3, scoring='neg_mean_squared_error')
+    grid_search_cv.fit(X_train_scaled, y_train)
 
-    # --- Plotting ---
-    fig = go.Figure()
-    fig.add_trace(go.Bar(x=result_df['Model'], y=result_df['Predicted TEMP'], name='Predicted TEMP'))
-    fig.add_trace(go.Scatter(x=result_df['Model'], y=result_df['RMSE'], mode='lines+markers', name='RMSE'))
-    fig.update_layout(title="Comparison of Model Predictions", yaxis_title="Value")
-    st.plotly_chart(fig, use_container_width=True)
+    # Get best parameters and best score
+    best_model = grid_search_cv.best_estimator_
+    st.write(f"Best Parameters: {grid_search_cv.best_params_}")
+
+else:
+    best_model = models[model_choice]
+    best_model.fit(X_train_scaled, y_train)
+
+# Make predictions on the test set and user input
+y_pred_test = best_model.predict(X_test_scaled)
+y_pred_user = best_model.predict(scaler.transform(user_data))
+
+# Calculate RMSE and R² score
+mse = mean_squared_error(y_test, y_pred_test)
+rmse = np.sqrt(mse)
+r2 = r2_score(y_test, y_pred_test)
+
+# Display results
+st.write(f"### Results for {model_choice}")
+st.write(f"RMSE: {rmse:.2f}")
+st.write(f"R²: {r2:.2f}")
+st.write(f"Predicted Temperature for your input: {y_pred_user[0]:.2f}°C")
+
+# Display comparison of models
+model_comparisons = pd.DataFrame({
+    'Model': ['SVR', 'KNN', 'Decision Tree', 'Random Forest', 'XGBoost'],
+    'R²': [
+        r2_score(y_test, models['SVR'].fit(X_train_scaled, y_train).predict(X_test_scaled)),
+        r2_score(y_test, models['KNN'].fit(X_train_scaled, y_train).predict(X_test_scaled)),
+        r2_score(y_test, models['Decision Tree'].fit(X_train_scaled, y_train).predict(X_test_scaled)),
+        r2_score(y_test, models['Random Forest'].fit(X_train_scaled, y_train).predict(X_test_scaled)),
+        r2_score(y_test, models['XGBoost'].fit(X_train_scaled, y_train).predict(X_test_scaled))
+    ]
+})
+
+st.write("### Model Comparison")
+st.write(model_comparisons)
+
+# Visualization of the results (Predicted vs Actual values)
+st.write("### Prediction vs Actual (Test Set)")
+
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.scatter(y_test, y_pred_test)
+ax.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', linestyle='--', lw=2)
+ax.set_xlabel('Actual Values')
+ax.set_ylabel('Predicted Values')
+ax.set_title('Actual vs Predicted Temperature')
+st.pyplot(fig)
+
+# Display model predictions in a bar chart
+st.write("### Model Comparison - R² Scores")
+fig = px.bar(model_comparisons, x='Model', y='R²', title="Model Comparison based on R² Score")
+st.plotly_chart(fig)
+
 
