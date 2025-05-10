@@ -3,6 +3,26 @@ import pandas as pd
 import requests
 from io import StringIO
 
+
+# Page title based on which file this is
+current_page = "Dataset Overview"  # Change this string in each file appropriately
+
+# Radio-based page navigation
+page = st.radio(
+    "📁 Navigate to:",
+    ("Dataset Overview", "Explore EDA", "Model Prediction"),
+    index=["Dataset Overview", "Explore EDA", "Model Prediction"].index(current_page),
+    horizontal=True
+)
+
+# Switch to other pages
+if page == "Dataset Overview" and current_page != "Dataset Overview":
+    st.switch_page("pages/Dataset_Overview.py")
+elif page == "Explore EDA" and current_page != "Explore EDA":
+    st.switch_page("pages/Explore_EDA.py")
+elif page == "Model Prediction" and current_page != "Model Prediction":
+    st.switch_page("pages/Model_Prediction.py")
+
 st.header("📄 Dataset Overview")
 
 @st.cache_data
