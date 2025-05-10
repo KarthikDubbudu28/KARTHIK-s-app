@@ -1,15 +1,27 @@
 import streamlit as st
 
-# --- Page Config ---
-st.set_page_config(page_title="Temperature Prediction App", page_icon="🌡️", layout="centered")
+# App title and welcome message
+st.set_page_config(page_title="🌡️ Temperature Prediction App", layout="centered")
 
-# --- Title and Welcome ---
-st.markdown("<h1 style='text-align: center;'>🌡️ Temperature Prediction App</h1>", unsafe_allow_html=True)
-st.markdown("<h3 style='text-align: center;'>👋 Welcome to the Temperature Prediction App for Beijing City!</h3>", unsafe_allow_html=True)
-st.markdown("---")
+st.markdown("## 👋 Welcome!")
+st.title("🌡️ Temperature Prediction App")
+st.subheader("Welcome to the Temperature Prediction App for Beijing City!")
 
-# --- Home Content ---
-st.markdown("### 📌 Use the sidebar on the left to navigate through the app pages.")
+# Radio button navigation
+page = st.radio(
+    "Navigate to a page:",
+    ("Home", "Dataset Overview", "Explore EDA", "Model Prediction"),
+    index=0
+)
+
+# Redirecting to selected page
+if page == "Dataset Overview":
+    st.switch_page("pages/Dataset_Overview.py")
+elif page == "Explore EDA":
+    st.switch_page("pages/Explore_EDA.py")
+elif page == "Modeling":
+    st.switch_page("pages/Model_Prediction.py")
+
 
 
 
