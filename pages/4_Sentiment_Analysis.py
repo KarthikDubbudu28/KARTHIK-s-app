@@ -5,6 +5,7 @@ import pandas as pd
 from geopy.geocoders import Nominatim
 from geopy.extra.rate_limiter import RateLimiter
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from textblob import TextBlob
 import pydeck as pdk
 import simplekml
 import io
@@ -40,11 +41,21 @@ def analyze_sentiment(text):
     s = analyzer.polarity_scores(str(text))
     c = s["compound"]
     if c >= 0.05:
-        return c, "positive"
+        label = "positive"
     elif c <= -0.05:
-        return c, "negative"
+        label = "negative"
     else:
-        return c, "neutral"
+        label = "neutral"
+    return c, label
+
+# ----------------------------
+# Subjectivity / Objectivity
+# ----------------------------
+def get_subjectivity(text):
+    tb = TextBlob(str(text))
+    subjectivity = tb.sentiment.subjectivity     # 0 = objective, 1 = subjective
+    objectivity = 1 - subjectivity
+    return subjectivity, objectivity
 
 # ----------------------------
 # Geocoding Function
@@ -111,8 +122,13 @@ if uploaded_file is not None:
     st.subheader("🔎 Sentiment Analysis")
 
     df["sentiment_score"], df["sentiment_label"] = zip(*df["content"].apply(analyze_sentiment))
+    df["subjectivity"], df["objectivity"] = zip(*df["content"].apply(get_subjectivity))
 
+    st.write("Sentiment label counts:")
     st.write(df["sentiment_label"].value_counts())
+
+    st.write("Subjectivity / Objectivity example:")
+    st.dataframe(df[["content", "subjectivity", "objectivity"]].head())
 
     # ----------------------------
     # Geocoding
@@ -124,7 +140,6 @@ if uploaded_file is not None:
         )
 
     map_df = df.dropna(subset=["latitude", "longitude"])
-
     st.success(f"Geocoded {len(map_df)} rows successfully")
 
     # ----------------------------
@@ -156,11 +171,17 @@ if uploaded_file is not None:
                         pickable=True,
                     )
                 ],
-                tooltip={"text": "{content}\n{sentiment_label}"},
+                tooltip={"text": "{content}\nSentiment: {sentiment_label}\nSubjectivity: {subjectivity}"},
             )
         )
     else:
         st.info("No valid geocoded locations found.")
+
+    # ----------------------------
+    # Final Table
+    # ----------------------------
+    st.subheader("📌 Full Processed Data")
+    st.dataframe(df)
 
     # ----------------------------
     # KML Download
@@ -169,11 +190,10 @@ if uploaded_file is not None:
         kml = simplekml.Kml()
         for _, r in map_df.iterrows():
             p = kml.newpoint(
-                name=r.get("display_name") or r.get("username") or "text",
-                description=r["content"]
+                name=r.get("username") or "text",
+                description=f"{r['content']}\nSentiment: {r['sentiment_label']}"
             )
             p.coords = [(r["longitude"], r["latitude"])]
-
         bio = io.BytesIO()
         kml.save(bio)
         bio.seek(0)
@@ -187,4 +207,3 @@ if uploaded_file is not None:
 
 else:
     st.info("Please upload a CSV file to begin analysis.")
-
