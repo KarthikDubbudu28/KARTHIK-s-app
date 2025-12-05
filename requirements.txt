@@ -8,3 +8,8 @@ plotly
 requests
 xgboost
 textblob
+snscrape
+nltk
+geopy
+pydeck
+simplekml
